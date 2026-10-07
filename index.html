@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>African Prince - The Legacy</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="game-canvas"></canvas>
+
+        <!-- Main Menu Overlay -->
+        <div id="main-menu" class="overlay">
+            <h1>African Prince - The Legacy</h1>
+            <p>Embark on an epic journey across Africa</p>
+            <button id="btn-start">Start Game (Lagos)</button>
+            <button id="btn-dash">Danger Dash Mode</button>
+            <button id="btn-store">Open Store</button>
+        </div>
+
+        <!-- HUD -->
+        <div id="hud" class="hidden">
+            <div class="hud-item">HP: <span id="hud-hp">100</span></div>
+            <div class="hud-item">XP: <span id="hud-xp">0</span></div>
+            <div class="hud-item">Points: <span id="hud-points">0</span></div>
+            <div class="hud-item">Level: <span id="hud-level">Lagos</span></div>
+        </div>
+
+        <!-- Store Overlay -->
+        <div id="store-menu" class="overlay hidden">
+            <h2>Store</h2>
+            <p>Your Points: <span id="store-points">0</span></p>
+            <div class="store-items">
+                <div class="store-item">
+                    <span>Spear of the Elders (+10 Damage) - 50 pts</span>
+                    <button id="btn-buy-spear">Buy</button>
+                </div>
+                <div class="store-item">
+                    <span>Baobab Potion (+50 HP) - 30 pts</span>
+                    <button id="btn-buy-health">Buy</button>
+                </div>
+            </div>
+            <button id="btn-close-store">Close Store</button>
+        </div>
+
+        <!-- Game Over Overlay -->
+        <div id="game-over" class="overlay hidden">
+            <h2>Game Over</h2>
+            <p>The journey ends here...</p>
+            <button id="btn-restart">Restart</button>
+            <button id="btn-main-menu">Main Menu</button>
+        </div>
+
+        <!-- Level Complete Overlay -->
+        <div id="level-complete" class="overlay hidden">
+            <h2>Level Complete!</h2>
+            <p>You have conquered this city.</p>
+            <button id="btn-next-level">Next Level</button>
+        </div>
+
+        <!-- Mobile Controls (Visible only on mobile devices) -->
+        <div id="mobile-controls">
+            <div class="controls-left">
+                <button id="btn-left" class="control-btn">◀</button>
+                <button id="btn-right" class="control-btn">▶</button>
+            </div>
+            <div class="controls-right">
+                <button id="btn-jump" class="control-btn">▲</button>
+                <button id="btn-attack" class="control-btn">⚔</button>
+                <button id="btn-dash-action" class="control-btn">⚡</button>
+            </div>
+        </div>
+    </div>
+    <script src="js/game.js"></script>
+</body>
+</html>
