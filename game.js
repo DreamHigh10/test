@@ -15,12 +15,40 @@ let gameState = 'MENU'; // MENU, PLAYING, STORE, GAMEOVER, LEVEL_TRANSITION
 let animationId;
 let lastTime = 0;
 
+// Assets
+const assets = {
+    playerIdle: new Image(),
+    playerRun: new Image(),
+    playerJump: new Image(),
+    playerAttack: new Image(),
+    playerDash: new Image(),
+    obstacle: new Image(),
+    coin: new Image(),
+    bgLagos: new Image(),
+    bgKigali: new Image(),
+    bgCairo: new Image(),
+    bgCapeTown: new Image()
+};
+
+// Set sources (placeholders to be replaced with real assets by user)
+assets.playerIdle.src = 'assets/player_idle.png';
+assets.playerRun.src = 'assets/player_run.png';
+assets.playerJump.src = 'assets/player_jump.png';
+assets.playerAttack.src = 'assets/player_attack.png';
+assets.playerDash.src = 'assets/player_dash.png';
+assets.obstacle.src = 'assets/obstacle.png';
+assets.coin.src = 'assets/coin.png';
+assets.bgLagos.src = 'assets/bg_lagos.jpg';
+assets.bgKigali.src = 'assets/bg_kigali.jpg';
+assets.bgCairo.src = 'assets/bg_cairo.jpg';
+assets.bgCapeTown.src = 'assets/bg_cape_town.jpg';
+
 // Player Data
 const player = {
     x: 100,
     y: 100,
-    width: 40,
-    height: 80,
+    width: 60, // slightly larger for a realistic character aspect ratio
+    height: 120,
     vx: 0,
     vy: 0,
     speed: 300, // pixels per second
@@ -40,7 +68,7 @@ const player = {
     dashSpeedMultiplier: 2.5,
     attackTime: 0,
     attackDuration: 0.3,
-    color: '#e67e22' // Temp placeholder for realistic sprite
+    color: '#e67e22' // Fallback color
 };
 
 // Input handling
@@ -82,10 +110,10 @@ if (isTouchDevice) {
 
 // Level Data (African Cities)
 const levels = [
-    { name: 'Lagos', bg: '#2c3e50', ground: '#7f8c8d', goal: 2000, theme: 'Urban Hustle' },
-    { name: 'Kigali', bg: '#27ae60', ground: '#2ecc71', goal: 4000, theme: 'Green Hills' },
-    { name: 'Cairo', bg: '#d35400', ground: '#e67e22', goal: 6000, theme: 'Desert Sands' },
-    { name: 'Cape Town', bg: '#2980b9', ground: '#3498db', goal: 8000, theme: 'Coastal Winds' }
+    { name: 'Lagos', bgImage: assets.bgLagos, fallbackBg: '#2c3e50', ground: '#7f8c8d', goal: 2000, theme: 'Urban Hustle' },
+    { name: 'Kigali', bgImage: assets.bgKigali, fallbackBg: '#27ae60', ground: '#2ecc71', goal: 4000, theme: 'Green Hills' },
+    { name: 'Cairo', bgImage: assets.bgCairo, fallbackBg: '#d35400', ground: '#e67e22', goal: 6000, theme: 'Desert Sands' },
+    { name: 'Cape Town', bgImage: assets.bgCapeTown, fallbackBg: '#2980b9', ground: '#3498db', goal: 8000, theme: 'Coastal Winds' }
 ];
 
 let currentLevelIdx = 0;
@@ -281,18 +309,22 @@ function drawGame() {
     const levelData = levels[currentLevelIdx];
 
     // Clear and draw bg
-    ctx.fillStyle = levelData.bg;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    if (levelData.bgImage.complete && levelData.bgImage.naturalWidth !== 0) {
+        ctx.drawImage(levelData.bgImage, 0, 0, canvas.width, canvas.height);
+    } else {
+        ctx.fillStyle = levelData.fallbackBg;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Draw mountains/parallax (simple representation)
-    ctx.fillStyle = 'rgba(0,0,0,0.2)';
-    for(let i=0; i<10; i++) {
-        ctx.beginPath();
-        let mx = (i * 300) - (cameraX * 0.2) % 300;
-        ctx.moveTo(mx, canvas.height - groundHeight);
-        ctx.lineTo(mx + 150, canvas.height - groundHeight - 200);
-        ctx.lineTo(mx + 300, canvas.height - groundHeight);
-        ctx.fill();
+        // Draw fallback mountains/parallax
+        ctx.fillStyle = 'rgba(0,0,0,0.2)';
+        for(let i=0; i<10; i++) {
+            ctx.beginPath();
+            let mx = (i * 300) - (cameraX * 0.2) % 300;
+            ctx.moveTo(mx, canvas.height - groundHeight);
+            ctx.lineTo(mx + 150, canvas.height - groundHeight - 200);
+            ctx.lineTo(mx + 300, canvas.height - groundHeight);
+            ctx.fill();
+        }
     }
 
     ctx.save();
@@ -303,45 +335,74 @@ function drawGame() {
     ctx.fillRect(cameraX, canvas.height - groundHeight, canvas.width + 1000, groundHeight);
 
     // Draw Coins
-    ctx.fillStyle = '#f1c40f';
     coins.forEach(coin => {
         if (!coin.collected) {
-            ctx.beginPath();
-            ctx.arc(coin.x, coin.y, coin.radius, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.strokeStyle = '#f39c12';
-            ctx.stroke();
+            if (assets.coin.complete && assets.coin.naturalWidth !== 0) {
+                ctx.drawImage(assets.coin, coin.x - coin.radius, coin.y - coin.radius, coin.radius * 2, coin.radius * 2);
+            } else {
+                ctx.fillStyle = '#f1c40f';
+                ctx.beginPath();
+                ctx.arc(coin.x, coin.y, coin.radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#f39c12';
+                ctx.stroke();
+            }
         }
     });
 
     // Draw Obstacles
-    ctx.fillStyle = '#c0392b';
     obstacles.forEach(obs => {
-        ctx.beginPath();
-        ctx.moveTo(obs.x, obs.y + obs.height);
-        ctx.lineTo(obs.x + obs.width/2, obs.y);
-        ctx.lineTo(obs.x + obs.width, obs.y + obs.height);
-        ctx.fill();
+        if (assets.obstacle.complete && assets.obstacle.naturalWidth !== 0) {
+            ctx.drawImage(assets.obstacle, obs.x, obs.y, obs.width, obs.height);
+        } else {
+            ctx.fillStyle = '#c0392b';
+            ctx.beginPath();
+            ctx.moveTo(obs.x, obs.y + obs.height);
+            ctx.lineTo(obs.x + obs.width/2, obs.y);
+            ctx.lineTo(obs.x + obs.width, obs.y + obs.height);
+            ctx.fill();
+        }
     });
 
     // Draw Player
-    ctx.fillStyle = player.color;
+    let playerImgToDraw = null;
 
-    if (player.state === 'DASH') {
-        ctx.fillStyle = '#3498db'; // visual feedback for dash
-    } else if (player.state === 'ATTACK') {
-        ctx.fillStyle = '#e74c3c';
+    switch(player.state) {
+        case 'IDLE': playerImgToDraw = assets.playerIdle; break;
+        case 'RUN': playerImgToDraw = assets.playerRun; break;
+        case 'JUMP': playerImgToDraw = assets.playerJump; break;
+        case 'ATTACK': playerImgToDraw = assets.playerAttack; break;
+        case 'DASH': playerImgToDraw = assets.playerDash; break;
+        default: playerImgToDraw = assets.playerIdle;
     }
 
-    ctx.fillRect(player.x, player.y, player.width, player.height);
-
-    // Attack hitbox visual
-    if (player.state === 'ATTACK') {
-        ctx.fillStyle = 'rgba(231, 76, 60, 0.5)';
-        if (player.direction === 1) {
-            ctx.fillRect(player.x + player.width, player.y + 20, 40, 40);
+    if (playerImgToDraw.complete && playerImgToDraw.naturalWidth !== 0) {
+        ctx.save();
+        if (player.direction === -1) {
+            ctx.scale(-1, 1);
+            ctx.drawImage(playerImgToDraw, -player.x - player.width, player.y, player.width, player.height);
         } else {
-            ctx.fillRect(player.x - 40, player.y + 20, 40, 40);
+            ctx.drawImage(playerImgToDraw, player.x, player.y, player.width, player.height);
+        }
+        ctx.restore();
+    } else {
+        // Fallback rectangle
+        ctx.fillStyle = player.color;
+        if (player.state === 'DASH') {
+            ctx.fillStyle = '#3498db'; // visual feedback for dash
+        } else if (player.state === 'ATTACK') {
+            ctx.fillStyle = '#e74c3c';
+        }
+        ctx.fillRect(player.x, player.y, player.width, player.height);
+
+        // Attack hitbox visual
+        if (player.state === 'ATTACK') {
+            ctx.fillStyle = 'rgba(231, 76, 60, 0.5)';
+            if (player.direction === 1) {
+                ctx.fillRect(player.x + player.width, player.y + 20, 40, 40);
+            } else {
+                ctx.fillRect(player.x - 40, player.y + 20, 40, 40);
+            }
         }
     }
 
