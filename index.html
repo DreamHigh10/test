@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Shujaa: The African Prince</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <!-- Main Menu -->
+        <div id="main-menu" class="screen active">
+            <h1>SHUJAA</h1>
+            <p>The African Prince</p>
+            <button id="start-btn" class="btn">Start Journey</button>
+            <button id="store-btn" class="btn">Store</button>
+            <div class="controls-info">
+                PC: Arrow keys / Space to Jump / X to Attack / Z to Dash<br>
+                Mobile: On-screen controls
+            </div>
+        </div>
+
+        <!-- Store Screen -->
+        <div id="store-screen" class="screen">
+            <h2>The Merchant's Tent</h2>
+            <div class="store-stats">
+                Points: <span id="store-points">0</span>
+            </div>
+            <div class="items">
+                <div class="item">
+                    <h3>Spear Upgrade</h3>
+                    <p>Cost: 100 Points</p>
+                    <button class="buy-btn" data-item="spear" data-cost="100">Buy</button>
+                </div>
+                <div class="item">
+                    <h3>Health Potion</h3>
+                    <p>Cost: 50 Points</p>
+                    <button class="buy-btn" data-item="potion" data-cost="50">Buy</button>
+                </div>
+                <div class="item">
+                    <h3>Shield of Mali</h3>
+                    <p>Cost: 200 Points</p>
+                    <button class="buy-btn" data-item="shield" data-cost="200">Buy</button>
+                </div>
+            </div>
+            <button id="close-store-btn" class="btn">Back to Menu</button>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen">
+            <div id="hud">
+                <div class="stat-bar">
+                    <span class="label">HP:</span>
+                    <div class="bar-bg"><div id="hp-bar" class="bar-fill"></div></div>
+                </div>
+                <div class="stat-bar">
+                    <span class="label">XP:</span>
+                    <div class="bar-bg"><div id="xp-bar" class="bar-fill"></div></div>
+                </div>
+                <div class="stats-text">
+                    Lvl: <span id="level-display">1 (Lagos)</span> |
+                    Pts: <span id="points-display">0</span>
+                </div>
+            </div>
+
+            <canvas id="gameCanvas"></canvas>
+
+            <!-- Mobile Controls -->
+            <div id="mobile-controls">
+                <div class="d-pad">
+                    <button class="m-btn" id="btn-left">◀</button>
+                    <button class="m-btn" id="btn-right">▶</button>
+                </div>
+                <div class="action-buttons">
+                    <button class="m-btn" id="btn-dash">Dash</button>
+                    <button class="m-btn" id="btn-attack">Atk</button>
+                    <button class="m-btn" id="btn-jump">Jump</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Level Transition / Game Over -->
+        <div id="overlay-screen" class="screen">
+            <h2 id="overlay-title">Level Complete!</h2>
+            <p id="overlay-desc">You have survived Lagos.</p>
+            <button id="overlay-btn" class="btn">Continue</button>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
