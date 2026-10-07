@@ -4,3 +4,10 @@
 127.0.0.1 - - [07/Oct/2026 22:43:25] "GET /index.html HTTP/1.1" 200 -
 127.0.0.1 - - [07/Oct/2026 22:43:25] "GET /js/game.js HTTP/1.1" 200 -
 127.0.0.1 - - [07/Oct/2026 22:43:25] "GET /css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [07/Oct/2026 23:03:42] "HEAD /assets/hero.jpg HTTP/1.1" 200 -
+127.0.0.1 - - [07/Oct/2026 23:04:50] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [07/Oct/2026 23:04:50] "GET /css/style.css HTTP/1.1" 200 -
+127.0.0.1 - - [07/Oct/2026 23:04:50] "GET /js/game.js HTTP/1.1" 200 -
+127.0.0.1 - - [07/Oct/2026 23:04:50] "GET /assets/enemy1.jpg HTTP/1.1" 200 -
+127.0.0.1 - - [07/Oct/2026 23:04:50] "GET /assets/enemy2.jpg HTTP/1.1" 200 -
+127.0.0.1 - - [07/Oct/2026 23:04:50] "GET /assets/hero.jpg HTTP/1.1" 200 -

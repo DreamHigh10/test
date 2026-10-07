@@ -2,6 +2,16 @@
 const canvas = document.getElementById('game-canvas');
 const ctx = canvas.getContext('2d');
 
+// Image Assets
+const imgHero = new Image();
+imgHero.src = 'assets/hero.jpg';
+
+const imgEnemy1 = new Image();
+imgEnemy1.src = 'assets/enemy1.jpg';
+
+const imgEnemy2 = new Image();
+imgEnemy2.src = 'assets/enemy2.jpg';
+
 function resizeCanvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -104,22 +114,55 @@ class Player {
     }
 
     draw(ctx) {
-        // Draw Player Body
-        ctx.fillStyle = '#8B4513'; // SaddleBrown
-        ctx.fillRect(this.x - camera.x, this.y - camera.y, this.width, this.height);
+        // Calculate animation bobbing if moving
+        let bobY = 0;
+        let tiltAngle = 0;
+        if (!this.grounded) {
+            // Jumping tilt
+            tiltAngle = this.facingRight ? 0.2 : -0.2;
+        } else if (Math.abs(this.vx) > 0) {
+            // Running bob and tilt
+            bobY = Math.sin(Date.now() / 100) * 5;
+            tiltAngle = Math.sin(Date.now() / 150) * 0.1;
+            if (!this.facingRight) tiltAngle -= 0.1; // Baseline tilt for direction
+            else tiltAngle += 0.1;
+        } else if (!this.facingRight) {
+            // Idle facing left
+            tiltAngle = -0.05;
+        }
 
-        // Draw Player Head
-        ctx.fillStyle = '#A0522D'; // Sienna
-        ctx.fillRect(this.x - camera.x + 5, this.y - camera.y - 30, 30, 30);
+        ctx.save();
 
-        // Draw Attack Hitbox
-        if (this.isAttacking) {
-            ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
-            if (this.facingRight) {
-                ctx.fillRect(this.x - camera.x + this.width, this.y - camera.y + 10, 40, 20);
-            } else {
-                ctx.fillRect(this.x - camera.x - 40, this.y - camera.y + 10, 40, 20);
+        // Translate to the center of the player for rotation
+        ctx.translate(this.x - camera.x + this.width / 2, this.y - camera.y + this.height / 2 + bobY - 15);
+        ctx.rotate(tiltAngle);
+
+        // Draw Player Image (adjusting for translation)
+        // Draw the image filling the hit box roughly (plus some extra height to look like a full person)
+        if (imgHero.complete) {
+            // Flip horizontally if facing left
+            if (!this.facingRight) {
+                ctx.scale(-1, 1);
             }
+            ctx.drawImage(imgHero, -this.width / 2 - 10, -this.height / 2 - 30, this.width + 20, this.height + 30);
+        } else {
+            // Fallback
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(-this.width/2, -this.height/2, this.width, this.height);
+        }
+
+        ctx.restore();
+
+        // Draw Attack Hitbox (Effect)
+        if (this.isAttacking) {
+            ctx.fillStyle = 'rgba(255, 215, 0, 0.6)'; // Gold spear swipe effect
+            ctx.beginPath();
+            if (this.facingRight) {
+                ctx.arc(this.x - camera.x + this.width + 10, this.y - camera.y + 20, 25, -Math.PI/2, Math.PI/2);
+            } else {
+                ctx.arc(this.x - camera.x - 10, this.y - camera.y + 20, 25, Math.PI/2, Math.PI*1.5);
+            }
+            ctx.fill();
         }
     }
 
@@ -262,13 +305,20 @@ function drawDash() {
     ctx.fillText(`Distance: ${Math.floor(dashDistance)}m`, 20, 100);
 
     // Player (Fixed X position)
-    // Draw Player Body
-    ctx.fillStyle = '#8B4513';
-    ctx.fillRect(player.x, player.y, player.width, player.height);
+    // Draw Player Image with Dash Bobbing
+    let dashBob = player.grounded ? Math.sin(Date.now() / 80) * 5 : 0;
 
-    // Draw Player Head
-    ctx.fillStyle = '#A0522D';
-    ctx.fillRect(player.x + 5, player.y - 30, 30, 30);
+    ctx.save();
+    ctx.translate(player.x + player.width / 2, player.y + player.height / 2 + dashBob - 15);
+    ctx.rotate(0.1); // Leaning forward slightly to run
+
+    if (imgHero.complete) {
+        ctx.drawImage(imgHero, -player.width / 2 - 10, -player.height / 2 - 30, player.width + 20, player.height + 30);
+    } else {
+        ctx.fillStyle = '#8B4513';
+        ctx.fillRect(-player.width/2, -player.height/2, player.width, player.height);
+    }
+    ctx.restore();
 }
 
 // Level Data
@@ -582,14 +632,34 @@ function drawLevel() {
 
     // Draw Enemies
     for (let e of enemies) {
-        ctx.fillStyle = e.type === 'thug' ? '#800080' : '#8B0000'; // Purple thug, Dark red warrior
-        ctx.fillRect(e.x - camera.x, e.y - camera.y, e.w, e.h);
+        let isMoving = Math.abs(e.speed) > 0;
+        let enemyBobY = isMoving ? Math.sin(Date.now() / 150 + e.x) * 4 : 0;
+        let enemyTilt = isMoving ? Math.sin(Date.now() / 200 + e.x) * 0.1 : 0;
+        let facingRight = e.dir > 0;
+
+        ctx.save();
+        ctx.translate(e.x - camera.x + e.w / 2, e.y - camera.y + e.h / 2 + enemyBobY - 15);
+        ctx.rotate(enemyTilt);
+
+        let imgToDraw = e.type === 'thug' ? imgEnemy1 : imgEnemy2;
+
+        if (imgToDraw.complete) {
+            if (!facingRight) {
+                ctx.scale(-1, 1);
+            }
+            ctx.drawImage(imgToDraw, -e.w / 2 - 10, -e.h / 2 - 30, e.w + 20, e.h + 30);
+        } else {
+            ctx.fillStyle = e.type === 'thug' ? '#800080' : '#8B0000';
+            ctx.fillRect(-e.w/2, -e.h/2, e.w, e.h);
+        }
+
+        ctx.restore();
 
         // Enemy HP bar
         ctx.fillStyle = 'red';
-        ctx.fillRect(e.x - camera.x, e.y - camera.y - 10, e.w, 5);
+        ctx.fillRect(e.x - camera.x, e.y - camera.y - 15, e.w, 5);
         ctx.fillStyle = 'green';
-        ctx.fillRect(e.x - camera.x, e.y - camera.y - 10, e.w * (e.hp / (e.type==='thug'?50:80)), 5);
+        ctx.fillRect(e.x - camera.x, e.y - camera.y - 15, e.w * (e.hp / (e.type==='thug'?50:80)), 5);
     }
 
     // Draw Player
